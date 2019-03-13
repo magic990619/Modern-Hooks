@@ -1,0 +1,27 @@
+
+body {
+    min-height: calc(100vh - 48px);
+    display: flex;
+    margin-bottom: 0;
+}
+
+#wrap {
+    flex-grow: 1;
+}
+
+#content {
+    min-height: calc(100vh - 54px);
+    padding-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-description {
+  margin-top: 5px;
+  opacity: 0.8;
+}
+
+#outer {
+    flex-grow: 1;
+    display: flex;
+}

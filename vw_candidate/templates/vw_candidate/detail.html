@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'jquery-bar-rating/themes/fontawesome-stars.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-bar-rating/themes/fontawesome-stars-o.css' %}">
+    <link rel="stylesheet" href="{% static 'vw_candidate/detail.css' %}">
+{% endblock %}
+
+{% block left %}
+    <ul id="menu" class="bg-blue dker">
+        <li class="nav-header">Candidates</li>
+        <li class="nav-divider"></li>
+        {% for candidate in candidates %}
+        <li class="">
+            <a href="{% url 'detail' candidate_id=candidate.id question_order=1 %}">
+                <i class="fa fa-user"></i><span class="{% if candidate.id == sel_candidate.id %}sel-candidate{% endif %}">&nbsp;{{ candidate.full_name }}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class="outer" id="outer">
+        <div class="inner bg-light lter">
+            <div class="row" style="background: linear-gradient(white, #aaa); padding-bottom: 10px;; padding-top: 10px;">
+                <div class="col-sm-4">
+                    <img
+                        src="{% if sel_candidate.portrait %}{{ sel_candidate.portrait.url }}{% else %}{% static 'img/no-user.jpg' %}{% endif %}"
+                        style="max-width: 200px; width: 100%; border: 2px solid #999;"
+                    />
+                </div>
+                <div class="col-sm-4">
+                    <div><h1>{{ sel_candidate.full_name }}</h1></div>
+                    <button id="resume">Resume</button>
+                    <div>Completed {{ created_at }}</div>
+                    <div id="resumeViewer" style="display:none">
+                        <div>
+                            <iframe src="{% if sel_candidate.resume %}{{ sel_candidate.resume.url }}{% endif %}" style="width: 100%; height: 450px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div>Avg Rating</div>
+                    <select id="avg_rating">
+                        <option value=""></option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <div id="avg_rating_text">{{ sel_candidate.avg_rate }}</div>
+                    <div>{{ question_order }} of {{ question_count }} Responses Rated</div>
+                </div>
+            </div>
+            <div class="row" style="padding: 10px 20px;">
+                <div class="col-sm-6">
+                    <div class="question-numbers" style="text-align: center;">
+                        <a class="btn btn-default btn-circle btn-grad {% if question_order == '1' %}disabled{% endif %}" href="{% url 'detail' candidate_id=sel_candidate.id question_order=question_order|add:'-1' %}">
+                            <i class="fa fa-chevron-left"></i>
+                        </a>
+                        {% for question_idx in question_loop %}
+                            <a class="btn btn-circle btn-grad {% if question_idx|stringformat:'i' == question_order %}btn-metis-5{% else %}btn-default{% endif %}" href="{% url 'detail' candidate_id=sel_candidate.id question_order=question_idx %}">{{ question_idx }}</a>
+                        {% endfor %}
+                        <a class="btn btn-default btn-circle btn-grad {% if question_order == question_count|stringformat:'i' %}disabled{% endif %}" href="{% url 'detail' candidate_id=sel_candidate.id question_order=question_order|add:'1' %}">
+                            <i class="fa fa-chevron-right"></i>
+                        </a>
+                    </div>
+                    <div class="question">
+                        <h3>Question {{ question_order }} of {{ question_count }}</h3>
+                        <div style="border: solid 1px; min-height: 100px">{{ question.ques }}</div>
+                    </div>
+                    <p class="page-description">
+                      Rate each answer by clicking on a star directly above the video. Then click 
+                      the arrows (left or right - usually right) to move onto the next answer given by 
+                      the candidate. Once you have finished, click on Dashboard in the menu and 
+                      you will see the candidate's score for each competency and overall. 
+                      You may re-rate the candidate at any time.
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <h3>{{ sel_candidate.first_name }}'s Response</h3>
+                    <h6>Rate for this response</h6>
+                    <select id="rating">
+                        <option value=""></option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <div>
+                        <video style="width:auto; height:auto; max-height:240px; max-width: 100%" controls>
+                            <source src="{{ question.recording.video.url }}" type="video/web">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_footer %}
+    <script src="{% static 'jquery-bar-rating/jquery.barrating.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#rating').barrating({
+                theme: 'fontawesome-stars-o',
+                initialRating: {{ question_rate|default:'0' }},
+                onSelect: function(value, text, event) {
+                    if (typeof(event) !== 'undefined') {
+                        $.ajax({
+                            url: '{% url "set_rating" question_id=question.id %}',
+                            type: 'post',
+                            data: { rating: value },
+                            success: function (data) {
+                                $('#avg_rating').barrating('destroy');
+                                $('#avg_rating').barrating({
+                                    theme: 'fontawesome-stars-o',
+                                    initialRating: data.avg_rate,
+                                    readonly: true
+                                });
+                                $('#avg_rating_text').text(data.avg_rate);
+                            }
+                        });
+                    }
+                }
+            });
+            $('#avg_rating').barrating({
+                theme: 'fontawesome-stars-o',
+                initialRating: {{ sel_candidate.avg_rate }},
+                readonly: true
+            });
+            const ratingTooltipsInnerHTML = [
+                '<div class="star-rate-tooltip"><div class="tooltip-title">Level 1: Unsatisfactory</div><div>Failed to answer the question satisfactorily</div></div>',
+                '<div class="star-rate-tooltip"><div class="tooltip-title">Level 2: Improvements needed</div><div>Response was barely adequate</div></div>',
+                '<div class="star-rate-tooltip"><div class="tooltip-title">Level 3: Meets expectations</div><div>Response was adequate</div></div>',
+                '<div class="star-rate-tooltip"><div class="tooltip-title">Level 4: Exceeds expectations</div><div>Exceeded the required response</div></div>',
+                '<div class="star-rate-tooltip"><div class="tooltip-title">Level 5: Exceptional</div><div>Far exceeded the required response</div></div>',
+            ];
+            $('.br-widget').find('a').each(function(index) {
+                $(this).prop('title', '').tooltip({
+                    content: ratingTooltipsInnerHTML[index % 5],
+                    position: {
+                        my: "center bottom-5",
+                        at: "center top",
+                        collision: "flipfit"
+                    }
+                });
+            });
+            $('#resume').click(function() {
+                var h = $(window).height();
+                $('#resumeViewer iframe').height(h-100);
+                $('#resumeViewer').dialog({
+                    title: 'Resume',
+                    position: {
+                        my: 'center center',
+                        at: 'center center'
+                    },
+                    width: 800,
+                    height: h-50
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+{% endblock %}
+

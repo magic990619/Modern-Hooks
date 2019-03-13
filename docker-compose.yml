@@ -1,0 +1,55 @@
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - .:/web
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=anytimeiv.settings.local
+      - PY_AUTORELOAD=1
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test37
+      - POSTGRES_HOST=db
+    command: /bin/bash -c "make install_devs && sh web.sh && make migrate && make run_server"
+
+  redis:
+    image: redis
+
+  db:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_PASSWORD=test37
+    command: postgres
+
+  celery:
+    build: .
+    volumes:
+      - .:/web
+    environment:
+      - DJANGO_SETTINGS_MODULE=anytimeiv.settings.local
+      - PY_AUTORELOAD=1
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+      - web
+    command: /bin/bash -c "make install_devs && make celery"
+
+  flower:
+    build: .
+    volumes:
+      - .:/web
+    environment:
+      - DJANGO_SETTINGS_MODULE=anytimeiv.settings.local
+      - PY_AUTORELOAD=1
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "5555:5555"
+    links:
+      - redis
+    depends_on:
+      - celery
+    command: /bin/bash -c "make install_devs && make flower"

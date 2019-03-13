@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load average_rating %}
+
+<li data-action="avg_rate">
+    <div class="row">
+        <div class="col-sm-6 col-xs-6">
+            <label>{% trans 'Average Rating:' %}</label>
+        </div>
+        <div class="col-sm-6 col-xs-6">
+            <ul class="pull-right list-inline list-unstyled star_rated">
+                {% for class in candidate.avg_rate|average_rating_stars %}
+                    <li>
+                        <span>
+                            <i class="{{ class }}" aria-hidden="true"></i>
+                        </span>
+                    </li>
+                {% endfor %}
+
+            </ul>
+        </div>
+    </div>
+</li>

@@ -1,0 +1,123 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% trans 'Welcome::Dashbaord' %}</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="{% static 'vw_candidate/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vw_candidate/css/font-awesome.css' %}">
+    <link rel="stylesheet" href="{% static 'vw_candidate/css/style-dashboard.css' %}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css">
+    <!-- jquery.min.js -->
+    <script src="{% static 'vw_candidate/js/jquery.min.js' %}"></script>
+</head>
+<body class="bg_grey dashboard-page">
+{% block extra_head %}
+{% endblock %}
+
+<header class="dashboard_header">
+    <nav class="navbar navbar-default">
+        <div>
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">{% trans 'Toggle navigation' %}</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <div class="flex-container">
+                <ul class="nav navbar-nav header_nav">
+                    <li>
+                        <a href="{% url 'dashboard' %}">{% trans 'Dashboard' %}</a>
+                    </li>
+                    <li class="active">
+                        <a href="#">{% trans 'Profile ' %}</a>
+                    </li>
+                    <li>
+                        <a href="#" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">{% trans 'Templates' %}<span
+                                class="dropdown_arrow"><img
+                                src="{% static 'vw_candidate/images/down_arrow-grey.png' %} "></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'questions' %}"><span class="nav_txt">{% trans 'Questions' %}</span></a>
+                            </li>
+                            <li><a href="{% url 'invite_messages' %}"><span
+                                    class="nav_txt">{% trans 'Invite Message' %}</span></a></li>
+
+
+                        </ul>
+                    </li>
+                </ul>
+                <div class="need-help">
+                    <a href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
+                       class="btn-red help_btn">{% trans 'Need Help' %}</a>
+                    <div class="dropdown-menu help-drop">
+                        <p>
+                            {% blocktrans %}
+                                Rate each answer by clicking on a star directly above the video. Then click the
+                                arrows (left or right - usually right) to move onto the next answer given by the
+                                candidate. Once you have finished, click on Dashboard in the menu and you will see
+                                the candidate's score for each competency and overall. You may re-rate the candidate
+                                at any time.
+                            {% endblocktrans %}
+                        </p>
+                    </div>
+                </div>
+              </div>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+</header>
+{% block content %}
+{% endblock %}
+{% csrf_token %}
+<footer class="dashboard_footer bg_white">
+    <p>{% blocktrans %}Copyright 2018. <a href="#" class="copyright_link">Anytime Interview. A RightPeople</a> Product.
+        All Rights
+        Reserved. {% endblocktrans %}</p>
+</footer>
+{% block extra_footer %}
+{% endblock %}
+<!-- Bootstrap.mn.js -->
+<script src="{% static 'vw_candidate/js/bootstrap.min.js' %}"></script>
+<!-- overflow-scroll -->
+<script src="{% static 'vw_candidate/js/jquery.slimscroll.min.js' %}"></script>
+<script>
+  $(document).ready(function (e) {
+    $('#slimtest').slimScroll({
+      height: '100%'
+    });
+  });
+
+</script>
+
+<script>
+  $(document).ready(function (e) {
+    $('.smartphone-menu-trigger').click(function () {
+      $('.menu').toggleClass('nav_open');
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function (e) {
+    $('.nav_link').click(function () {
+      $(this).toggleClass('open');
+    });
+  });
+</script>
+
+</body>
+</html>
+

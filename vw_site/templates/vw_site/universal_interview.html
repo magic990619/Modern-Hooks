@@ -1,0 +1,244 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% trans 'RightPeople' %}</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+        <link rel="stylesheet" href="{% static 'vw_site/wizard/bootstrap/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'vw_site/wizard/font-awesome/css/font-awesome.min.css' %}">
+        <link rel="stylesheet" href="{% static 'vw_site/wizard/css/form-elements.css' %}">
+        <link rel="stylesheet" href="{% static 'vw_site/wizard/css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'vw_site/interview.css' %}">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+
+    <body>
+        <!-- Top content -->
+        <div class="top-content">
+            <div class="container">
+                <input type="hidden" id="job_id" value="{{ job_id }}">
+                <input type="hidden" id="position" value="{{ position }}">
+                <div class="row" style="display: flex; align-items: flex-end;">
+                    {% if logo_position_choise == 3 %}
+                        <div class="col-sm-offset-1 col-md-offset-2 col-xs-4 col-sm-2 text">
+                            <img src="{{ subclient_logo }}" style="width: 90%">
+                        </div>
+                        <div class="col-xs-4 col-sm-2 col-xs-offset-4 col-md-offset-4 col-sm-offset-6 text">
+                            <img src="{% static 'img/logo.png' %}" style="width: 90%">
+                        </div>
+                    {% else %}
+                        <div class="col-xs-4 col-sm-2 col-sm-offset-5 col-xs-offset-4 text">
+                            {% if logo_position_choise == 1 %}
+                                <img src="{{ subclient_logo }}" style="width: 90%">
+                            {% else %}
+                                <img src="{% static 'img/logo.png' %}" style="width: 90%">
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 form-box">
+                    	<form role="form" action="" method="post" class="f1">
+
+                            <h3><strong>{% trans 'Anytime Interview' %}</strong></h3>
+                    		<div class="f1-steps">
+                    			<div class="f1-progress">
+                    			    <div class="f1-progress-line" data-now-value="16.66" data-number-of-steps="3" style="width: 16.66%;"></div>
+                    			</div>
+                    			<div class="f1-step active">
+                    				<div class="f1-step-icon"><i class="fa fa-user"></i></div>
+                    				<p>{% trans 'Setup' %}</p>
+                    			</div>
+                    			<div class="f1-step">
+                    				<div class="f1-step-icon"><i class="fa fa-coffee"></i></div>
+                    				<p>{% trans 'Practice' %}</p>
+                    			</div>
+                    		    <div class="f1-step">
+                    				<div class="f1-step-icon"><i class="fa fa-video-camera"></i></div>
+                    				<p>{% trans 'Interview' %}</p>
+                    			</div>
+                    		</div>
+
+                    		<fieldset>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="f1-first-name">{% trans 'First name' %}</label>
+                                            <input type="text" name="first_name" placeholder="{% trans 'First name...' %}" class="first-name form-control" id="first-name" value="{{ first_name }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="sr-only" for="f1-last-name">{% trans 'Last name' %}</label>
+                                            <input type="text" name="last_name" placeholder="{% trans 'Last name...' %}" class="last-name form-control" id="last-name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="sr-only" for="email">{% trans 'Email' %}</label>
+                                            <input type="text" name="last_name" placeholder="{% trans 'Email...' %}" class="last-name form-control" id="email">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="f1-buttons">
+                                     <button type="button" class="btn btn-next" id="step1-next">{% trans 'Next' %}</button>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <div class="practice-description">
+                                    <div id="hello-section">
+                                      <h4 id="step2-name"></h4>
+                                      <p>Welcome to your interview for <strong>{{ position }}</strong>.</p>
+                                    </div>
+                                    <p class="text-justify">
+                                        Click on the red 'Practice Record' button to have a
+                                        practice. Once you have finished your
+                                        practice, you can click the
+                                        <img style="display: inline-block; height: 16px;" src="{% static 'vw_candidate/play.svg' %}"> on
+                                        the video - to see how your video sounds and looks. You may
+                                         then start the real interview
+                                    </p>
+                                    <div id="practice-explain" style="display: none;">
+                                        <p>
+                                            If you would like to practice again, press the Practice Record button.
+                                            Otherwise, click the Next button to begin.
+                                        </p>
+                                    </div>
+                                    <div style="display: none;">
+                                        <h4><strong>Devices</strong></h4>
+                                        <div>
+                                            <label>Camera:</label>
+                                            <span id="check_video">checking...</span>
+                                        </div>
+                                        <div>
+                                            <label>Microphone:</label>
+                                            <span id="check_audio">checking...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6 video-wrapper">
+                                        <video id="practice-video"  data-action="practice-video" controls="" autoplay="" style="width: 100%;"></video>
+                                    </div>
+                                    <div class="col-sm-6 question" id="pracetice_question">
+                                        <h4>Practice Question</h4>
+                                        <p>What's your strongest skill?</p>
+                                        <button class="btn btn-md btn-record" id="practice-start-record" type="button" disabled>Practice Record</button>
+                                        <label class="btn btn-md btn-record" id="practice-start-record-ios" style="display: none;">
+                                            <input type="file" accept="video/mp4,video/webm,video/*" style="display: none;" capture="user">
+                                            Practice Record
+                                        </label>
+                                        <button class="btn btn-md btn-record" id="practice-stop-record" type="button" style="display: none;">Stop</button>
+                                    </div>
+                                </div>
+
+                                <div class="f1-buttons">
+                                    <button type="button" class="btn btn-next" id="step2-next" disabled>Next</button>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <div class="row question-block">
+                                    <div class="col progress-bar-section -hidden">
+                                      <div>
+                                        <div>Uploading...</div>
+                                        <div class="progress-bar-interview animate">
+                                          <span id="progress-bar-progress"><span></span></span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-xs-12 ios-warning" style="display: none">
+                                      <div id="ios-flow-description" style="display: none">
+                                        If you are using IOS (iPhone or iPad), you will need to press the red record button once your video recorder opens.
+                                      </div>
+                                      <div>
+									You have ‘a maximum of <span id="question-limit">{{ questions.first.limit }}</span>’
+									minutes to answer this question. Only ‘<span
+										id="question-limit1">{{ questions.first.limit }}</span>’ minutes of video will be
+									recorded.
+
+									Please be patient while your answer is uploaded. The time this will take depends on
+									your Internet speed.
+								</div>
+                                    </div>
+                                    <div class="col-sm-6 video-wrapper">
+                                        <h5 id="note" style="padding-left: 5px;"></h5>
+                                        <video id="interview-video" controls="" autoplay=""></video>
+                                    </div>
+                                    {% for question in questions %}
+                                        <div class="col-sm-6 question" id="question{{ question.order }}" limit="{{ question.limit }}" style="display: none;">
+                                            <h4>Question{{ question.order }}</h4>
+                                            <p>{{ question.question }}</p>
+                                            <label class="btn btn-md btn-record next-question-ios" style="display: none;">
+                                                <input type="file" accept="video/mp4,video/webm,video/*" style="display: none;" capture="user">
+                                                Record video
+                                            </label>
+                                            <button type="button" class="btn btn-md btn-success next-question" disabled>{% if question.order|add:1 == question.count %}Last Question{% elif question.order == question.count %}{% else %}Next Question{% endif %}</button>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </fieldset>
+                            <input type="hidden" id="question_count" value="{{ question_count }}">
+                            <input type="hidden" id="token" value="{{ token }}">
+                            <input type="hidden" id="save-interview" value="{% url 'save_universal_interview' %}">
+                    	</form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Javascript -->
+        <script src="{% static 'vw_site/wizard/js/jquery-1.11.1.min.js' %}"></script>
+        <script src="{% static 'vw_site/wizard/bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'vw_site/wizard/js/jquery.backstretch.min.js' %}"></script>
+        <script src="{% static 'vw_site/wizard/js/retina-1.1.0.min.js' %}"></script>
+        <script src="{% static 'vw_site/wizard/js/scripts.js' %}"></script>
+        <script src="{% static 'jquery-uploadPreview/jquery.uploadPreview.min.js' %}"></script>
+
+        <!-- WebRTC -->
+        <script src="{% static 'vw_site/webrtc/RecordRTC.js' %}"></script>
+        <script src="{% static 'vw_site/webrtc/adapter-latest.js' %}"></script>
+
+        <!--[if lt IE 10]>
+            <script src="{% static 'vw_site/wizard/js/placeholder.js' %}"></script>
+        <![endif]-->
+
+        <script src="{% static 'vw_site/interview.js' %}"></script>
+        <script>
+            $(document).ready(function() {
+                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                // Check safari
+                var is_safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                var is_ios = (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
+                // iOS detection from: http://stackoverflow.com/a/9039885/177710
+
+                if (is_safari && !is_ios) {
+                    var fieldset = $("fieldset:visible");
+                    fieldset.find('div').remove();
+                    fieldset.html('<h1 align="center">Your browser or system is not fully supported. Please use a Windows PC,  Android device or, Mac OS running Chrome or Firefox browser to complete the interview.</h1>');
+                } else if (is_ios) {
+                    $('.ios-warning').show();
+                    $('#practice-start-record').hide();
+                    $('#interview-video').hide();
+                    $('#practice-start-record-ios').show();
+                }
+            });
+        </script>
+    </body>
+
+</html>

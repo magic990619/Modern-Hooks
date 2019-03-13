@@ -1,0 +1,106 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <form class="form-horizontal" id="inviteForm" method="post" action="{% url 'create_candidate' %}">
+            {% csrf_token %}
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">Invite Candidate</h4>
+            </div>
+            <div class="modal-body">
+                <div class="question-group">
+                    <p id="invite_note" style="text-align: center; color: red;"></p>
+                    <div class="form-group">
+                        <label for="first_name" class="control-label col-lg-4">First Name</label>
+                        <div class="col-lg-8">
+                            <input id="first_name" type="text" name="first_name"
+                                   placeholder="First Name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="control-label col-lg-4">E-mail</label>
+                        <div class="col-lg-8">
+                            <input id="invite_email" type="email" name="email" placeholder="Email"
+                                   class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="position" class="control-label col-lg-4">Position</label>
+                        <div class="col-lg-8">
+                            <select required id="invite_position" class="form-control" name="position">
+                                <option value=""></option>
+                                {% for position in positions %}
+                                    <option>{{ position.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="question-wrapper1">
+                        <div class="form-group question1">
+                            <div class="col-lg-1"><a class="btn btn-default btn-xs del-question"
+                                                     index="1"><i class="fa fa-minus"></i></a>
+                            </div>
+                            <label class="control-label col-lg-3">Question1</label>
+                            <div class="col-lg-8">
+                                <textarea id="invite_question1" class="form-control" rows="3"
+                                          name="question1" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group time-limit1">
+                            <div class="col-lg-8 col-lg-offset-4">
+                                <label for="time-limit" class="control-label col-lg-4">Time
+                                    limit</label>
+                                <input id="time-limit1" type="text" class="form-control time-limit"
+                                       name="limit1" value="5" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-default btn-xs add-question" index="1">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <div>
+                    <div class="form-group">
+                        <label for="position" class="control-label col-lg-4">Invite Link</label>
+                        <div class="col-lg-8">
+                            <input id="invite_link" type="text" name="invite_link"
+                                   value="read only" readonly class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="position" class="control-label col-lg-4">Invite Message</label>
+                        <div class="col-lg-8">
+                            <textarea id="cur_invite_template" name="invite_message"
+                                      style="display: none;"></textarea>
+                            <button id="save_template" type="button"
+                                    class="btn btn-sm btn-default">Save this template
+                            </button>
+                            <div class="slider_invite_template">
+                                {% if invites %}
+                                    {% for invite in invites %}
+                                        <div style="padding: 2px;">
+                                            <textarea id="invite_template{{ forloop.counter0 }}"
+                                                      class="invite_template"
+                                                      template_id="{{ invite.id }}"></textarea>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div style="padding: 2px;">
+                                        <textarea id="invite_template0"
+                                                  class="invite_template"></textarea>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-success" value="Send">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </form>
+    </div>
+    <!-- /.modal-content -->
+</div>

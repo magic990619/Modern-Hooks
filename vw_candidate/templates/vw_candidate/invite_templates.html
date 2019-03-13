@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'froala_editor_2.7.1/css/froala_editor.pkgd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'froala_editor_2.7.1/css/froala_style.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="outer">
+        <div class="inner bg-light lter">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box">
+                        <header>
+                            <div class="icons"><i class="fa fa-envelope"></i></div>
+                            <h5>Invite <span class="hidden-xs">Message</span> Templates</h5>
+                            <div class="toolbar">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-default" data-toggle="modal" href="#addMessageModal">
+                                        Add <span class="hidden-xs">Message Template</span></button>
+                                </div>
+                            </div>
+                        </header>
+                        <div id="collapse4" class="body">
+                            <table id="dataTable" class="table table-condensed table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th width="80%">Content</th>
+                                    <th width="20%">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for invite in invites %}
+                                    <tr>
+                                        <td class="content{{ invite.id }}"
+                                            style="word-break: break-word;">{{ invite.html }}</td>
+                                        <td>
+                                            <a class="btn btn-default btn-xs edit-btn" title="edit"
+                                               data-edit-url="{% url 'edit_invite_message' invite.id %}"
+                                            ><i class="glyphicon glyphicon-edit"></i></a>
+                                            <a class="btn btn-default btn-xs del-btn" title="delete"
+                                               data-toggle="modal" href="#delConfirmModal"
+                                               data-del-url="{% url 'delete_invite_message' invite.id %}"><i
+                                                    class="fa fa-close"></i></a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" style="text-align: center;">No Message Template</td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modal %}
+    <div id="addMessageModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="addMessageForm" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add Message Template</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="content" class="control-label col-lg-4">Content</label>
+                            <div class="col-lg-8">
+                                <textarea id="message_content" class="form-control" rows="5" name="content"
+										  required></textarea>
+							</div>
+							<div class="col-lg-12 text-right">
+								{% if request.user.is_superuser %}
+									{% trans "Make it global " %}
+									<input type="checkbox" id="global_message_content" name="is_global" value="True">
+								{% endif %}
+							</div>
+						</div>
+						<input type="hidden" name="action" value="add">
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="btn btn-success" value="Add">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="editMessageModal" class="modal fade">
+
+    </div>
+
+    <div id="delConfirmModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="delForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans 'Delete Invite Message' %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>{% trans 'Are you sure you wish to delete this invite message?' %}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-danger" value="{% trans 'Yes' %}">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'No' %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_footer %}
+    <script src="{% static 'froala_editor_2.7.1/js/froala_editor.pkgd.min.js' %}"></script>
+    <script>
+      $(function () {
+        var froala_key = 'MmC-13E-11D5qC-7kgA-21xsE-11vmC-7ijtD-17hF4bmnH3ds==';
+
+        $('.edit-btn').click(function () {
+          $.get($(this).data('edit-url'), function (e) {
+            $('#editMessageModal').empty();
+            $('#editMessageModal').append(e);
+            $('#editMessageModal').modal('toggle');
+          })
+        });
+        $('.del-btn').click(function () {
+          $('#delForm').attr('action', $(this).data('del-url'));
+        });
+        console.log($('#global_message_content').value)
+        $('#message_content').text('<p>Hello <span class="editor-candidate-name">Applicant</span>,</p><p>Please click on the link below to open the webpage for your anytime interview. Allow approximately 15 minutes this complete this task.</p><p>Interview link for you: <a href="<<Invite Link>>">Start Interview</a>&nbsp;</p>')
+        $('#message_content').froalaEditor({
+          toolbarButtons: ['bold', 'italic', 'underline', 'strikeThrough', 'color', 'emoticons', 'insertFile', 'html'],
+          key: froala_key
+        });
+      });
+    </script>
+{% endblock %}

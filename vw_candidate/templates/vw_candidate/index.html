@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'metis/lib/onoffcanvas/onoffcanvas.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/lib/animate.css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'dataTables/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{% static 'froala_editor_2.7.1/css/froala_editor.pkgd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'froala_editor_2.7.1/css/froala_style.min.css' %}">
+    <link rel="stylesheet" href="{% static 'slick/slick.css' %}" >
+    <link rel="stylesheet" href="{% static 'slick/slick-theme.css' %}" >
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <div class="outer">
+        <div class="inner bg-light lter">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box">
+                        <header>
+                            <div class="icons"><i class="fa fa-table"></i></div>
+                            <h5>Candidates</h5>
+                            <div class="toolbar">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-default invite-btn" data-toggle="modal" href="#inviteModal">Invite <span class="hidden-xs">Candidate</span></button>
+                                </div>
+                            </div>
+                        </header>
+                        <div id="collapse4" class="body overflow-auto">
+                            <table id="dataTable" class="table table-bordered table-condensed table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Position</th>
+                                        <th>Status</th>
+                                        <th>Score Competencies</th>
+                                        <th>Avg Rating</th>
+                                        <th>Rated by</th>
+                                        <th>Actions</th>
+										<th>Actions</th>
+										<th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if candidates %}
+                                        {% for candidate in candidates %}
+                                        <tr>
+                                            <td><a href="{% url 'detail' candidate_id=candidate.id question_order=1 %}">{{ candidate.full_name }}</a></td>
+                                            <td>{{ candidate.email }}</td>
+                                            <td>{{ candidate.position }}</td>
+                                            <td>{{ candidate.status }}</td>
+                                            <td>
+                                                {% for rate in candidate.avg_by_competency %}
+                                                    {{ rate.competency|default_if_none:'without competency' }} - {{ rate.rate|default:'0' }}<br>
+                                                {% endfor %}
+                                            </td>
+                                            <td>{% if candidate.avg_rate != 0 %}{{ candidate.avg_rate }}{% endif %}</td>
+                                            <td>
+                                                {% for user in candidate.list_users %}
+                                                    {% with user.user as user %}
+                                                    	{{ user }}
+                                                    {% endwith %}
+                                                    <br>
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% if candidate.status == 'Completed' %}
+                                                <a class="btn btn-primary" title="play" href="{% url 'detail' candidate_id=candidate.id question_order=1 %}">Interview<i style="margin-left:7px;" class="fa fa-play-circle-o"></i></a>
+                                                {% else %}
+                                                <a class="btn btn-info" title="resend" candidate_id="{{ candidate.id }}" data-toggle="modal" href="#inviteModal">Resend<i style="margin-left:7px;" class="fa fa-envelope"></i></a>
+                                                {% endif %}
+                                            </td>
+										<td>
+										  <label {% if candidate.resume %}disabled="disabled"{% endif %} for="resume_{{ candidate.id }}" class="btn btn-default btn-xs btn-space">
+											<i class="fa fa-address-card-o"></i>
+											<input
+												{% if candidate.resume %}disabled="disabled"{% endif %}
+												type="file"
+												id="resume_{{ candidate.id }}"
+												name="file"
+												class="hidden"
+												data-candidate="{{ candidate.id }}"
+												data-url="{% url 'upload_resume' candidate.id %}"
+											>
+										</label>
+										</td>
+										<td>
+											<button type="button" class="btn btn-default btn-xs del-btn btn-space" title="delete" del_id="{% url 'delete_candidate' candidate.id %}" data-toggle="modal" href="#delConfirmModal"><i class="fa fa-close"></i></button>
+										</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td colspan="10" style="text-align: center;">No Candidate</td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modal %}
+    <div id="inviteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="inviteForm" method="post" >
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Invite Candidate</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="question-group">
+                            <p id="invite_note" style="text-align: center; color: red;"></p>
+                            <div class="form-group">
+                                <label for="first_name" class="control-label col-lg-4">First Name</label>
+                                <div class="col-lg-8">
+                                    <input id="first_name" type="text" name="first_name" placeholder="First Name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="control-label col-lg-4">E-mail</label>
+                                <div class="col-lg-8">
+                                    <input id="invite_email" type="email" name="email" placeholder="Email" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="position" class="control-label col-lg-4">Position</label>
+                                <div class="col-lg-8">
+                                    <select id="invite_position" class="form-control" name="position" >
+                                        <option></option>
+                                        {% for position in positions %}
+                                        <option>{{ position.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% if subclient_groups %}
+                                <div class="form-group">
+                                    <label for="position" class="control-label col-lg-4">Department</label>
+                                    <div class="col-lg-8">
+                                        <select id="invite_position" class="form-control" name="subclient_group" >
+                                            <option></option>
+                                            {% for subclient_group in subclient_groups %}
+                                            <option>{{ subclient_group.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="question-wrapper1">
+                                <div class="form-group question1">
+                                    <div class="col-lg-1"><a class="btn btn-default btn-xs del-question" index="1"><i class="fa fa-minus"></i></a></div>
+                                    <label class="control-label col-lg-3">Question1</label>
+                                    <div class="col-lg-8">
+                                        <textarea id="invite_question1" class="form-control" rows="3" name="question1" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group time-limit1">
+                                    <div class="col-lg-8 col-lg-offset-4">
+                                        <label for="time-limit" class="control-label col-lg-4">Time limit</label>
+                                        <input id="time-limit1" type="text" class="form-control time-limit" name="limit1" value="5" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="btn btn-default btn-xs add-question" index="1">
+                            <i class="fa fa-plus"></i>
+                        </a>
+                        <div>
+                            <div class="form-group">
+                                <label for="position" class="control-label col-lg-4">Invite Link</label>
+                                <div class="col-lg-8">
+                                    <input id="invite_link" type="text" name="invite_link" value="read only" readonly class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="position" class="control-label col-lg-4">Invite Message</label>
+                                <div class="col-lg-8">
+                                    <textarea id="cur_invite_template" name="invite_message" style="display: none;"></textarea>
+                                    <button id="save_template" type="button" class="btn btn-sm btn-default">Save this template</button>
+                                    <div class="slider_invite_template">
+                                        {% if invites %}
+                                            {% for invite in invites %}
+                                            <div style="padding: 2px;">
+                                                <textarea id="invite_template{{ forloop.counter0 }}" class="invite_template" template_id="{{ invite.id }}"></textarea>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div style="padding: 2px;">
+                                                <textarea id="invite_template0" class="invite_template"></textarea>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-success" value="Send">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <div id="delConfirmModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="delForm" method="post" action="/candidates/delete/">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Delete Candidate</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-danger" value="Delete">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div style="display: none;">
+        {% for question in questions %}
+            <div class="questiontemp{{ question.id }}">{{ question.content }}</div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_footer %}
+    <script src="{% static 'dataTables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'dataTables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'jquery-tablesorter-2.26.6/jquery.tablesorter.min.js' %}"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="{% static 'froala_editor_2.7.1/js/froala_editor.pkgd.min.js' %}"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="{% static 'slick/slick.min.js' %}"></script>
+    <script>
+        var phraselist = [];
+        {% for question in questions %}
+            phraselist.push($('.questiontemp{{ question.id }}').text());
+        {% endfor %}
+        var siteUrl = "{{ SITE_URL }}";
+        /**
+         * We obtain something like this from backend: "[&lt;InviteTemplate: admin&gt;]"
+         * and transform it for something similar for stringified array: "[{InviteTemplate: admin}]}"
+         */
+        var invitesString = '{{ invitesList }}'.replace(/\&lt\;/g, '{').replace(/\&gt\;/g, '}');
+        /**
+         * Then, we set " around keys and values, to match json format
+         * and parse it to obtain javascript array
+         */
+        var invites = JSON.parse(invitesString.replace(/(\w+)/g, '"$1"'));
+        var oldMessages = [];
+        {% for invite in invites %}
+            oldMessages.push('{{ invite.html }}'.replace(/Applicant/i, '<span class="editor-candidate-name">Applicant</span>'));
+        {% endfor %}
+    </script>
+    <script src="{% static 'vw_candidate/index.js' %}"></script>
+{% endblock %}

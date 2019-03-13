@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<form class="form-horizontal" id="delForm" method="post" action="{% url 'jobs:delete_job' object.id %}">
+    {% csrf_token %}
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{% trans 'Delete universal link for job' %}</h4>
+    </div>
+    <div class="modal-body">
+        <p>{%trans 'Are you sure?' %}</p>
+    </div>
+    <div class="modal-footer">
+        <input type="submit" class="btn btn-danger" value="{% trans 'Delete' %}">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{%trans 'Cancel' %}</button>
+    </div>
+</form>

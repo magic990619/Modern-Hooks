@@ -1,0 +1,41 @@
+{% load i18n %}
+
+<form class="form-horizontal" id="addQuestionForm" method="post" action="{% url 'create_question' %}">
+    <div class="modal-header">
+        <button type="button" class="close"  data-dismiss="modal" data-action="close-modal" aria-hidden="true">&times;
+        </button>
+        <h4 class="modal-title">{% trans 'Add Question Template' %}</h4>
+    </div>
+    <div class="modal-body">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                <label for="{{ field.id_for_label }}" class="control-label col-lg-4">{{ field.label }}</label>
+                <div class="col-lg-8">
+                    {{ field }}
+                    <div class="help-block">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-group">
+            <label for="id_position" class="control-label col-lg-4">{% trans 'Position' %}</label>
+            <div class="col-lg-8">
+                <input id="id_position" type="text" name="position" value="{% if position %}{{ position }}{% endif %}" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="id_competency" class="control-label col-lg-4">{% trans 'Competency' %}</label>
+            <div class="col-lg-8">
+                <input id="id_competency" type="text" name="competency" value="{% if competency %}{{ competency }}{% endif %}" class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <input type="button" class="btn btn-success" data-action="create_question" value="{% trans 'Add' %}">
+        <button type="button" class="btn btn-default" data-action="close-modal" data-dismiss="modal">{% trans 'Close' %}</button>
+    </div>
+</form>

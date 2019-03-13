@@ -1,0 +1,45 @@
+{% load static %}
+{% load i18n %}
+{% load account socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/css/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/css/metisMenu.min.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/lib/metismenu/metisMenu.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/lib/onoffcanvas/onoffcanvas.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/lib/animate.css/animate.css' %}">
+</head>
+<body class="login">
+    <div class="form-signin">
+        <div class="text-center">
+            <img src="{% static 'img/logo.png' %}" alt="RightPeople Logo" style="width: 90px;">
+        </div>
+        <hr>
+        <div class="tab-content">
+            <div id="login" class="tab-pane active">
+                <form method="POST" action="{% url 'account_login' %}">
+                    <p class="text-muted text-center">Enter your username and password</p>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    {% endif %}
+                    <div>
+                        <button class="btn btn-lg btn-primary btn-block submit">Sign in</button>
+                        <a class="reset_pass" href="#">Lost your password?</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

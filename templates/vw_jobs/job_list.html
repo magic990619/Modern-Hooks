@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'metis/lib/onoffcanvas/onoffcanvas.css' %}">
+    <link rel="stylesheet" href="{% static 'metis/lib/animate.css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'dataTables/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+    <div class="outer">
+        <div class="inner bg-light lter">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box">
+                        <header>
+                            <div class="icons"><i class="fa fa-table"></i></div>
+                            <h5>{% trans 'Job listing' %}</h5>
+                            <div class="toolbar">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-default invite-btn"
+                                            data-toggle="modal" href="#inviteModal">
+                                        <span class="hidden-xs">{% trans 'Create link for mass interview' %}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+                        <div id="collapse4" class="body overflow-auto">
+                            <table id="dataTable"
+                                   class="table table-bordered table-condensed table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th style="width: 90%">{% trans 'Position' %}</th>
+                                    <th>{% trans 'Actions' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for object in object_list %}
+                                    <tr>
+                                        <td>{{ object.position }}</td>
+                                        <td>
+                                            {{ object.get_link }}
+                                            <button
+                                                    type="button"
+                                                    data-action="copy"
+                                                    class="btn btn-default btn-sm"
+                                                    title="{% trans 'copy' %}"
+                                                    data-clipboard-text="{{ object.link }}"
+                                            >
+                                                <span class="glyphicon glyphicon-copy"></span>
+                                                {% trans 'Copy' %}
+                                            </button>
+                                            <button
+                                                    type="button"
+                                                    class="btn btn-default btn-sm del-btn btn-space"
+                                                    title="{% trans 'delete' %}"
+                                                    data-action="deleteBtn"
+                                                    data-delete-url="{% url 'jobs:delete_job' object.id %}"
+                                            >
+                                                <span class="fa fa-close"></span>
+                                            </button>
+                                        </td>
+                                        {% empty %}
+                                    <tr>
+                                        <td colspan="2"
+                                            style="text-align: center;">{% trans 'No universal job links' %}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block modal %}
+    <div id="inviteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="inviteForm" method="post">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;
+                        </button>
+                        <h4 class="modal-title">{% trans 'Create Job link' %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="question-group">
+                            <p id="invite_note" style="text-align: center; color: red;"></p>
+                            <div class="form-group">
+                                <label for="invite_position"
+                                       class="control-label col-lg-4">{% trans 'Position' %}</label>
+                                <div class="col-lg-8">
+                                    <select id="invite_position" class="form-control"
+                                            name="position">
+                                        <option></option>
+                                        {% for position in positions %}
+                                            <option>{{ position.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="question-wrapper1">
+                                <div class="form-group question1">
+                                    <div class="col-lg-1">
+                                        <a class="btn btn-default btn-xs del-question" index="1">
+                                            <i class="fa fa-minus"></i>
+                                        </a>
+                                    </div>
+                                    <label class="control-label col-lg-3">Question1</label>
+                                    <div class="col-lg-8">
+                                    <textarea id="invite_question" class="form-control" rows="3"
+                                              name="question1"
+                                              required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group time-limit1">
+                                    <div class="col-lg-8 col-lg-offset-4">
+                                        <label for="time-limit1" class="control-label col-lg-4">
+                                            {% trans 'Time limit' %}
+                                        </label>
+                                        <input id="time-limit1" type="text"
+                                               class="form-control time-limit" name="limit1"
+                                               value="2" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="btn btn-default btn-xs add-question" index="1">
+                            <i class="fa fa-plus"></i>
+                        </a>
+                    </div>
+                    <div class="modal-footer">
+                        <input
+                                type="button"
+                                data-url="{% url 'jobs:create_job' %}"
+                                data-action="create-link"
+                                disabled="disabled"
+                                class="btn btn-success"
+                                value="{% trans 'Send' %}"
+                        >
+                        <button
+                                type="button"
+                                class="btn btn-default"
+                                data-dismiss="modal"
+                        >
+                            {% trans 'Close' %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <div data-action="deleteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;
+                        </button>
+                        <h4 class="modal-title">{% trans 'Delete universal link for job' %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>{% trans 'Are you sure?' %}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" data-action="action" class="btn btn-danger"
+                               value="{% trans 'Delete' %}">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">{% trans 'Cancel' %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extra_footer %}
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="{% static 'dataTables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'dataTables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'vw_jobs/clipboard.min.js' %}"></script>
+    <script src="{% static 'froala_editor_2.7.1/js/froala_editor.pkgd.min.js' %}"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script>
+      function toggleCreateLinkButton() {
+        if ( $( '.question1' ).find( 'textarea' ).val().length > 0 )
+          $( '[data-action="create-link"]' ).attr( 'disabled', false );
+        else
+          $( '[data-action="create-link"]' ).attr( 'disabled', true );
+      }
+
+      var phraselist = [];
+      {% for question in questions %}
+        phraselist.push( $( '.questiontemp{{ question.id }}' ).text() );
+      {% endfor %}
+
+      $( '[data-action="deleteBtn"]' ).on( 'click', function() {
+        var $modal = $( '[data-action="deleteModal"]' );
+        $modal.addClass( 'in' );
+        $modal.show();
+        $modal.find( 'form' ).attr( 'action', $( this ).data( 'delete-url' ) );
+      } );
+
+      $( '[data-dismiss="modal"]' ).on( 'click', function() {
+        var $modal = $( this ).closest( '.modal' );
+        $modal.removeClass( 'in' );
+        $modal.hide();
+      } );
+      $( '[data-action="action"]' ).on( 'click', function() {
+        var $form = $( this ).closest( 'form' );
+        $.post( $form.attr( 'action' ), $form.serialize(), function( e ) {
+          if ( e.status === 'ok' )
+            location.reload();
+          else
+            alert( e );
+        } );
+      } );
+
+      $( '.question-group' ).on( 'DOMNodeInserted', '.form-group', function() {
+        $( this ).find( 'textarea' ).autocomplete( {
+          source: function( req, responseFn ) {
+            var re = $.ui.autocomplete.escapeRegex( req.term );
+            var matcher = new RegExp( '\\b' + re, 'i' );
+            var a = $.grep( phraselist, function( item, index ) {
+              return matcher.test( item );
+            } );
+            responseFn( a );
+          },
+        } );
+      } );
+
+      function setPositionQuestions( questions ) {
+        if ( !( questions instanceof Array ) || !questions.length ) return;
+
+        const addBtn = $( '.add-question' );
+        let allQuestions = [];
+        const oldQuestions = $( '.question-group' ).find( '[class^="question-wrapper"]' );
+
+        oldQuestions.each( function( j, elem ) {
+          const text = $( elem ).find( 'textarea' ).val();
+          const timeLimit = $( elem ).find( '.time-limit' ).val();
+          if ( text ) allQuestions.push( { text, timeLimit } );
+        } );
+
+        oldQuestions.remove();
+
+        questions.forEach( function( text ) {
+          for ( var property in text ) {
+            allQuestions.push( { text: property, timeLimit: text[ property ] } );
+          }
+        } );
+
+        // allQuestions = allQuestions.slice(0, maxQuestionsCount); // think it's not needed in that case
+
+        allQuestions.forEach( function( questionData, index ) {
+          const currentIdx = index + 1;
+          appendQuestion( currentIdx, questionData );
+        } );
+        addBtn.attr( 'index', allQuestions.length );
+        toggleCreateLinkButton();
+      }
+
+      $( '#invite_position' ).on( 'change', function() {
+        var selectedPosition = this.value;
+        if ( selectedPosition ) {
+          getPositionsQuestions( {
+            value: selectedPosition,
+            cb: setPositionQuestions,
+          } );
+        }
+      } );
+
+      function getPositionsQuestions( { value, cb } ) {
+        $.ajax( {
+          url: urlPositionQuestions + '?position=' + value,
+          cache: false,
+          success: function( result ) {
+            cb(
+              result.map( function( pos ) {
+                var question = getValue( pos, 'fields.content', '' );
+                var limit = getValue( pos, 'fields.limit', '2' );
+                return { [ question ]: limit };
+              } ).filter( function( pos ) {
+                return pos;
+              } )
+            );
+          },
+        } );
+      }
+
+      var maxQuestionsCount = 10;
+
+      function getValue( object, path, defaultValue ) {
+        const pathParts = path instanceof Array ? path : path.split( '.' );
+
+        if ( !pathParts.length || typeof object !== 'object' ) return defaultValue;
+
+        const currentPathPart = pathParts[ 0 ];
+        const restPath = pathParts.slice( 1 );
+
+        if ( pathParts.length === 1 ) return object[ currentPathPart ];
+
+        return getValue( object[ currentPathPart ], restPath, defaultValue );
+      }
+
+      function appendQuestion( currentIdx, { text, timeLimit } ) {
+        $( '.question-group' ).append(
+          '<div class="question-wrapper' + currentIdx + '">' +
+          '<div class="form-group question' + currentIdx + '">' +
+          '<div class="col-lg-1"><a class="btn btn-default btn-xs del-question" index="' +
+          currentIdx + '"><i class="fa fa-minus"></i></a></div>' +
+          '<label class="control-label col-lg-3">Question' + currentIdx +
+          '</label>' +
+          '<div class="col-lg-8">' +
+          '<textarea class="form-control" name="question' + currentIdx +
+          '" required>' + text + '</textarea>' +
+          '</div>' +
+          '</div>' +
+          '<div class="form-group time-limit' + currentIdx + '">' +
+          '<div class="col-lg-8 col-lg-offset-4">' +
+          '<label for="time-limit" class="control-label col-lg-4">Time limit</label>' +
+          '<input type="text" class="form-control time-limit" name="limit' +
+          currentIdx + '" value="' + timeLimit + '" required>' +
+          '</div>' +
+          '</div>' +
+          '</div>'
+        );
+      }
+
+      $( '.question-group' ).on( 'click', '.del-question', function( e ) {
+        var count = parseInt( $( '.add-question' ).attr( 'index' ) );
+        if ( count <= 1 ) {
+          $( '#invite_note' ).html( 'You have to send at least 1 question.' );
+
+          return;
+        }
+        toggleCreateLinkButton();
+        $( '#invite_note' ).empty();
+        var idx = parseInt( $( this ).attr( 'index' ) );
+        $( '.question-group .question' + idx ).remove();
+        $( '.question-group .time-limit' + idx ).remove();
+        for ( var i = idx + 1; i <= count; i++ ) {
+          $( '.question-group .question' + i + ' .del-question' ).
+            attr( 'index', i - 1 );
+          $( '.question-group .question' + i + ' label' ).html( 'Question' + ( i - 1 ) );
+          $( '.question-group .question' + i + ' textarea' ).
+            attr( 'name', 'question' + ( i - 1 ) );
+          $( '.question-group .question' + i ).
+            addClass( 'question' + ( i - 1 ) ).
+            removeClass( 'question' + i );
+          $( '.question-group .time-limit' + i + ' .time-limit' ).
+            attr( 'name', 'limit' + ( i - 1 ) );
+          $( '.question-group .time-limit' + i ).
+            addClass( 'time-limit' + ( i - 1 ) ).
+            removeClass( 'time-limit' + i );
+          $( '#invite_question' + i ).attr( 'id', 'invite_question' + ( i - 1 ) );
+        }
+        $( '.add-question' ).attr( 'index', count - 1 );
+      } );
+
+      $( '.add-question' ).click( function() {
+        var newIdx = parseInt( $( this ).attr( 'index' ) ) + 1;
+        if ( newIdx > maxQuestionsCount ) {
+          alert( 'You can not create over ' + maxQuestionsCount + ' questions' );
+          return;
+        }
+        appendQuestion( newIdx, { text: '', timeLimit: 2 } );
+        $( this ).attr( 'index', newIdx );
+      } );
+
+      function monkeyPatchAutocomplete() {
+        var oldFn = $.ui.autocomplete.prototype._renderItem;
+
+        $.ui.autocomplete.prototype._renderItem = function( ul, item ) {
+          var re = new RegExp( '\\b' + this.term, 'i' );
+          var t = item.label.replace(
+            re, '<span style=\'font-weight:bold;color:Blue;\'>' + this.term +
+            '</span>' );
+          return $( '<li></li>' ).
+            data( 'item.autocomplete', item ).
+            append( '<a>' + t + '</a>' ).
+            appendTo( ul );
+        };
+      }
+
+      monkeyPatchAutocomplete();
+      $( '.question-group textarea' ).autocomplete( {
+        source: function( req, responseFn ) {
+          var re = $.ui.autocomplete.escapeRegex( req.term );
+          var matcher = new RegExp( '\\b' + re, 'i' );
+          var a = $.grep( phraselist, function( item, index ) {
+            return matcher.test( item );
+          } );
+          responseFn( a );
+        },
+      } );
+      $( '[data-action="create-link"]' ).on( 'click', function() {
+        var form_data = {
+          'position': $( '#invite_position' ).val(),
+          'csrfmiddlewaretoken': $( '[name="csrfmiddlewaretoken"]' ).val(),
+        };
+
+        $.post( $( this ).data( 'url' ), form_data, function( e ) {
+          if ( e.status === 'ok' ) {
+            var job_id = e.job_id,
+              counter = 1;
+            $( '[class^="question-wrapper"]' ).each( function( i, e ) {
+              var textarea = $( e ).find( 'textarea' );
+              if ( textarea && textarea.val() && textarea.val().length > 0 ) {
+                var data = {
+                  question: $( e ).find( 'textarea' ).val(),
+                  job: job_id,
+                  limit: $( e ).find( '.time-limit' ).val(),
+                  order: counter,
+                };
+                $.post( "{% url 'jobs:create_job_question' %}", data );
+                counter += 1;
+              }
+            } );
+            location.reload();
+          }
+          else
+            console.log( e.form );
+        } );
+      } );
+      new ClipboardJS( '[data-action="copy"]' );
+
+      $( '#inviteForm' ).change( function() {
+        toggleCreateLinkButton();
+      } );
+    </script>
+{% endblock %}

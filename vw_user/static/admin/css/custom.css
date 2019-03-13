@@ -1,0 +1,42 @@
+#content-main .app-account {
+	display: none;
+}
+#content-main .app-sites {
+	display: none;
+}
+
+#content-main .app-socialaccount {
+	display: none;
+}
+
+#content-main .app-vw_candidate {
+	display: none;
+}
+
+#content-main .app-vw_site {
+	display: none;
+}
+
+#content-main .app-vw_user {
+	display: none;
+}
+
+#content-main .app-vw_question {
+	display: none;
+}
+
+#content-main .field-is_staff {
+	display: none;
+}
+
+#content-related {
+	display: none;
+}
+
+.form-row.field-groups {
+	display: none;
+}
+
+.form-row.field-user_permissions {
+	display: none;
+}

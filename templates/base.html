@@ -1,0 +1,83 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}RightPeople{% endblock %}</title>
+    {% block meta %}
+        {% include "fragments/head_meta.html" %}
+    {% endblock %}
+    {% block extras %}
+        {% include "fragments/head_extras.html" %}
+    {% endblock %}
+
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+
+    {% block extra_meta %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="">
+    <div class="bg-dark dk" id="wrap">
+        <div id="top">
+            {% block top %}
+            <nav class="navbar navbar-inverse navbar-static-top">
+                <div class="container-fluid">
+                    <div class="flex-header">
+                        <header class="navbar-header">
+                            <a href="{% url 'index' %}" class="navbar-brand">
+                                <img src="{% static 'img/logo.png' %}" alt="RightPeople">
+                            </a>
+                        </header>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <div class="topnav">
+                            <div class="btn-group">
+                                <a href="{% url 'account_logout' %}" data-toggle="tooltip" data-original-title="Logout" data-placement="bottom" class="btn btn-metis-1 btn-sm">
+                                    <i class="fa fa-power-off"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse navbar-collapse navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li> <a href="{% url 'dashboard' %}">{% trans 'Dashboard' %}</a>  </li>
+                            <li> <a href="{% url 'jobs:list_job' %}">{% trans 'Job listing' %}</a>  </li>
+                            <li class='dropdown '>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'Templates' %} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li> <a href="{% url 'questions' %}">{% trans 'Questions' %}</a></li>
+                                    <li> <a href="{% url 'invite_messages' %}">{% trans 'Invite Message' %}</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            {% endblock %}
+        </div>
+        <div id="left">
+            {% block left %}
+            {% endblock %}
+        </div>
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+    <footer class="Footer bg-dark dker">
+        <p>{% now "Y" %} &copy; {% trans 'RightPeople Anytime Interview' %}</p>
+    </footer>
+    {% block modal %}
+    {% endblock %}
+    {% block footer %}
+        {% include "fragments/footer.html" %}
+    {% endblock %}
+    {% include 'js_urls.html' %}
+    {% block extra_footer %}{% endblock %}
+</body>
+</html>

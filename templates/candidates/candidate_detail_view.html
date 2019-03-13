@@ -1,0 +1,211 @@
+{% extends "candidates/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block extra_head %}
+    <nav class="menu" tabindex="0">
+        <div class="logo_wrapper">
+            <a href="/" class="logo">
+                <img src="{% static 'vw_candidate/images/dashboard-logo.png' %}">
+            </a>
+        </div>
+        <div class="smartphone-menu-trigger"></div>
+        <ul class="nav_list" id="slimtest">
+            <li class="nav_link active open">
+                <a href="#"><img src="{% static 'vw_candidate/images/candidate.png' %}"><span
+                        class="nav_txt">{% trans 'Candidates' %}<span
+                        class="dropdown_arrow"><img
+                        src="{% static 'vw_candidate/images/down_arrow-white.png' %}"></span></span></a>
+                <ul class="dropdown-menu sublist">
+                    {% for cand in candidates %}
+                        <li class="active">
+                            <a href="{% url 'detail' cand.id 1 %}"><img
+                                    src="{% static 'vw_candidate/images/user-white.png' %}"><span
+                                    class="nav_txt">{{ cand.full_name }}</span></a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <main>
+        <div class="main_content">
+            <h2 class="profile_heading">{% trans 'Welcome to' %} {{ candidate.first_name }}'s {% trans 'Profile ' %}
+            </h2>
+            <div class="row-equi-height mrB40">
+                <div class="col-lg-6 col-md-12 pd0 bg_white profile_intro pd30">
+                    <div class="media">
+                        <div class="media-left media-middle">
+                            <a href="#" class="profile_img">
+
+                                <img class="media-object"
+                                        {% if candidate.portrait %}
+                                     src="{{ candidate.portrait.url }}"
+                                        {% else %}
+                                     src="{% static "vw_candidate/images/no-user.jpg" %}"
+                                     style="border: 1px solid grey"
+                                        {% endif %}
+                                     alt="people">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="people_name">{{ candidate.full_name }}</h3>
+                            <p>{{ candidate.position }}</p>
+                            <hr class="hr_horizontal">
+                            <h6 class="date_completed">
+                                {% trans 'Date Completed: ' %}<strong>{{ created_at }}</strong>
+                            </h6>
+                            <ul class="list-inline list-unstyled profile_intro_btns">
+                                <li>
+                                    <button class="btn btn-purple btn-modal" id="resume">{% trans 'Resume' %} </button>
+
+                                </li>
+                                <li>
+                                    <a class="btn btn-grey"
+                                       href="mailto:{{ candidate.email }}">{% trans 'Contact' %}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 pd0 rating_zone pd30">
+                    <ul class="list-unstyled">
+                        {% include 'candidates/includes/avg_rate.html' %}
+                        {% include 'candidates/includes/score.html' %}
+                        <li>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <span class="pull-right">
+                                    {% blocktrans with question_order=question_order question_count=candidate.question_set.count %}
+                                        {{ question_order }} of {{ question_count }} Response Rated
+                                    {% endblocktrans %}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row row-equi-height mrB40 inquiry_blocks">
+                <div class="col-lg-4 col-md-12">
+                    <div class="white_block">
+                        <h4 class="white_block_heading">{% trans 'Question Asked' %}</h4>
+                        <hr class="hr_horizontal">
+                        <div class="white_block_content">
+                            <form class="inquiry_form">
+                                {% for q in question_set %}
+                                    <div class="form-group">
+                                        <a href="{% url 'detail' candidate.id q.order %}"
+                                                {% if q.order|slugify == question_order %}
+                                           id="q-in"
+                                                {% else %}
+                                           id="q-out"
+                                                {% endif %}>{{ q.ques }}</a>
+                                    </div>
+                                {% endfor %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="white_block">
+                        <h4 class="white_block_heading">{% trans 'Response recorded' %}</h4>
+                        <hr class="hr_horizontal">
+                        <div class="white_block_content">
+                            <div class="response_video">
+                                <video class="video" controls="controls">
+                                    <source src="{{ question.recording.video.url }}">
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="white_block">
+                        <h4 class="white_block_heading">{% trans 'Rate the response' %}</h4>
+                        <hr class="hr_horizontal">
+                        <div class="white_block_content">
+                            <form action="" class="response_list">
+                                <div class="radio_selection">
+
+
+                                    <label data-toggle="tooltip" data-placement="right" title="{% trans 'Exceptional Response' %}" class="radio-holder">
+                                        <input name="radio" type="radio"
+                                               {% if question_rate == 5 %}checked="checked"{% endif %} data-value="5">
+                                        <span class="checkmark"></span>
+                                        {% trans 'Very Strong Match' %}
+                                    </label>
+
+                                    <label data-toggle="tooltip" data-placement="right" title="{% trans 'Superior Response' %}" class="radio-holder">
+                                        <input name="radio" type="radio"
+                                               {% if question_rate == 4 %}checked="checked"{% endif %} data-value="4">
+                                        <span class="checkmark"></span>
+                                        {% trans 'Strong Match' %}
+                                    </label>
+
+                                    <label data-toggle="tooltip" data-placement="right" title="{% trans 'Adequate Response' %}" class="radio-holder">
+                                        <input name="radio" type="radio"
+                                               {% if question_rate == 3 %}checked="checked"{% endif %} data-value="3">
+                                        <span class="checkmark"></span>
+                                        {% trans 'Moderate Match' %}
+                                    </label>
+                                    <label data-toggle="tooltip" data-placement="right" title="{% trans 'Marginal Response' %}" class="radio-holder">
+                                        <input name="radio" type="radio"
+                                               {% if question_rate == 2 %}checked="checked"{% endif %} data-value="2">
+                                        <span class="checkmark"></span>
+                                        {% trans 'Weak Match' %}
+                                    </label>
+                                    <label data-toggle="tooltip" data-placement="right" title="{% trans 'Failed to Answer the Question Satisfactorily' %}" class="radio-holder">
+                                        <input name="radio" type="radio"
+                                               {% if question_rate == 1 %}checked="checked"{% endif %} data-value="1">
+                                        <span class="checkmark"></span>
+                                        {% trans 'Very Weak Match' %}
+                                    </label>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="modal-holder">
+        <div class="modal-resume">
+            <a href="#" class="btn-close"></a>
+            <iframe class="resume-holder"
+                    src="{% if sel_candidate.resume %}{{ sel_candidate.resume.url }}{% endif %}"></iframe>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_footer %}
+    <script>
+      $(".btn-close, .btn-modal").click(function () {
+        $(".dashboard-page").toggleClass("modal-open");
+      });
+    </script>
+    <script>
+      $('input[name="radio"]').on('click', function () {
+        const url = '{% url "set_rating" question_id=question.id %}';
+        const csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+        $.post(url, {
+          'csrfmiddlewaretoken': csrf_token,
+          'rating': $(this).data('value')
+        }, function (e) {
+          $('[data-action="avg_rate"]').replaceWith(e.avg_rate_html);
+          $('[data-action="score"]').replaceWith(e.score_html);
+        })
+      })
+    </script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+				$('[data-toggle="tooltip"]').tooltip();
+		});
+	</script>
+    <script type="text/javascript" src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+{% endblock %}

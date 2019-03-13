@@ -1,0 +1,44 @@
+{% load i18n %}
+<div class="modal-dialog">
+	<div class="modal-content">
+		<form class="form-horizontal" id="editMessageForm" method="post"
+			  action="{% url 'edit_invite_message' object.id %}">
+			{% csrf_token %}
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">{% trans 'Edit Message Template' %}</h4>
+			</div>
+			<input type="hidden" name="user" value="{{ user.id }}">
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="content" class="control-label col-lg-4">Content</label>
+					<div class="col-lg-8">
+                        <textarea id="message_content_edit" class="form-control" rows="5" name="html"
+								  required></textarea>
+					</div>
+					<div class="col-lg-12 text-right">
+						{% if request.user.is_superuser %}
+						{% trans "Make it global " %}
+						{{ form.is_global }}
+					{% endif %}
+					</div>
+				</div>
+				<input id="message_id" type="hidden" name="message_id">
+			</div>
+			<div class="modal-footer">
+				<input type="submit" class="btn btn-success" value="Submit">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+	var froala_key = 'MmC-13E-11D5qC-7kgA-21xsE-11vmC-7ijtD-17hF4bmnH3ds==';
+	$('#message_content_edit').val($('.content' + '{{ object.id }}').text());
+	$('#message_content_edit').froalaEditor({
+		toolbarButtons: ['bold', 'italic', 'underline', 'strikeThrough', 'color', 'emoticons', 'insertFile', 'html'],
+		key: froala_key
+	});
+	$('#message_id').val({{ object.id }});
+</script>

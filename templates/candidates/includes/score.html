@@ -1,0 +1,11 @@
+{% load i18n %}
+<li data-action="score">
+    <div class="row">
+        <div class="col-sm-6 col-xs-6">
+            <label>{% trans 'Score Obtained:' %}</label>
+        </div>
+        <div class="col-sm-6 col-xs-6">
+            <span class="score_value pull-right"><strong>{{ candidate.avg_rate_num }}</strong></span>
+        </div>
+    </div>
+</li>

@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <div class="outer">
+        <div class="inner bg-light lter">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box">
+                        <header>
+                            <div class="icons"><i class="fa fa-question-circle"></i></div>
+                            <h5>{% trans 'Question Templates' %}</h5>
+                            <div class="toolbar">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-default" data-toggle="modal" href="#addQuestionModal"
+                                            data-action="addQuestion">Add <span class="hidden-xs">{% trans 'Question' %}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+                        <div id="collapse4" class="body">
+                            <table id="dataTable" class="table table-condensed table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th width="10%">{% trans 'Type' %}</th>
+                                    <th width="10%">{% trans 'Competency' %}</th>
+                                    <th width="10%">{% trans 'Position' %}</th>
+                                    <th width="60%">{% trans 'Content' %}</th>
+                                    <th width="10%">{% trans 'Actions' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for question in questions %}
+                                    <tr>
+                                        <td class="type{{ question.id }}">{{ question.type }}</td>
+                                        <td class="type{{ question.id }}">{{ question.competency.name|default:"-" }}</td>
+                                        <td class="type{{ question.id }}">{{ question.position.name|default:"-" }}</td>
+                                        <td class="content{{ question.id }}">{{ question.content }}</td>
+                                        <td>
+                                            <button class="btn btn-default btn-xs edit-btn" title="edit"
+                                                    data-edit="{% url 'edit_question' question.id %}"
+                                                    data-toggle="modal" href="#editQuestionModal"
+                                                    data-action="editQuestionModal"><i
+                                                    class="glyphicon glyphicon-edit"></i></button>
+                                            <button type="button" class="btn btn-default btn-xs del-btn"
+                                                    title="delete" data-url="{% url 'del_question' question.id %}">
+                                                <i class="fa fa-close"></i></button>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4"
+                                            style="text-align: center;">{% trans 'No Question Template' %}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modal %}
+    <div id="addQuestionModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            </div>
+        </div>
+    </div>
+    <div id="editQuestionModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+    <div id="delConfirmModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="form-horizontal" id="delForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans 'Delete Invite Message' %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>{% trans 'Are you sure you wish to delete this invite message?' %}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-danger" value="{% trans 'Yes' %}">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'No' %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_footer %}
+    <style>
+        .ui-widget {
+            font-size: 0.8em;
+            line-height: 0.6em;
+        }
+
+        .ui-widget .ui-widget {
+            font-size: 0.7em;
+        }
+
+        .ui-menu-item {
+            font-size: 7pt;
+        }
+
+        .sel-candidate {
+            font-weight: bold;
+        }
+
+        .ui-dialog .ui-dialog-title {
+            line-height: 1.6em;
+        }
+
+        .ui-dialog {
+            z-index: 9990;
+        }
+    </style>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script>
+      var urlPositionsSuggestions = '{% url "positions_list" %}';
+      var urlCompetenciesSuggestions = '{% url "competencies_list" %}';
+      $(function () {
+        // Remove form from Add Question modal
+        $('body').on('click', 'input[data-action="create_question"]', function () {
+          $.post("{% url 'create_question' %}", $(this).closest('form').serialize(),
+            function (data) {
+              var block = $('#addQuestionModal');
+
+              if (data.status === 'ok') {
+                location.reload();
+              } else {
+                // removing old form from HTML DOM
+                block.find('.modal-content').find('form').remove();
+                // adding form with validations to HTML DOM
+                $(data.form).appendTo(block.find('.modal-content'));
+              }
+            }
+          );
+        });
+
+        // Close modal and remove form
+        $('body').on('click', 'button[data-action="close-modal"]', function () {
+          $(this).closest('.modal-content').find('form').remove();
+          autocompletePatched = false;
+          autocompleteCompetencyPatched = false;
+        });
+
+        // Append create question form to modal window
+        $('button[data-action="addQuestion"]').click(function () {
+          $.get("{% url 'create_question' %}",
+            function (data) {
+              var block = $('#addQuestionModal');
+              // added for opening modal window
+              block.addClass('in');
+              block.attr('attr', 'display:block');
+              $(data).appendTo(block.find('.modal-content'));
+            }
+          );
+        });
+
+        // Append edit question form to modal window
+        $('button[data-action="editQuestionModal"]').click(function () {
+          var url = $(this).data('edit');
+          $.get(url,
+            function (data) {
+              var block = $('#editQuestionModal');
+              // added for opening modal window
+              block.addClass('in');
+              block.attr('attr', 'display:block');
+              $(data).appendTo(block.find('.modal-content'));
+              $('#editQuestionForm').attr('action', url);
+            }
+          );
+        });
+
+        $('body').on('click', 'input[data-action="edit_question"]', function () {
+          var form = $(this).closest('form');
+          $.post(form.attr('action'), form.serialize(),
+            function (data) {
+              var block = $('#editQuestionModal');
+
+              if (data.status === 'ok') {
+                location.reload();
+              } else {
+                // removing old form from HTML DOM
+                block.find('.modal-content').find('form').remove();
+                // adding form with validations to HTML DOM
+                $(data.form).appendTo(block.find('.modal-content'));
+              }
+            }
+          );
+        });
+
+        // Remove SampleQuestion from DB
+        $('.del-btn').click(function () {
+          $.get($(this).data('url'), function (e) {
+            $('#delConfirmModal').empty();
+            $('#delConfirmModal').append(e);
+            $('#delConfirmModal').modal('toggle');
+          })
+        });
+
+        var autocompletePatched = false;
+        var autocompleteCompetencyPatched = false;
+
+        function monkeyPatchAutocomplete() {
+          var oldFn = $.ui.autocomplete.prototype._renderItem;
+
+          $.ui.autocomplete.prototype._renderItem = function (ul, item) {
+            var re = new RegExp("\\b" + this.term, "i");
+            var t = item.label.replace(re, "<span style='font-weight:bold;color:Blue;'>" + this.term + "</span>");
+            return $("<li></li>")
+              .data("item.autocomplete", item)
+              .append("<a>" + t + "</a>")
+              .appendTo(ul);
+          };
+        }
+
+        function getValue(object, path, defaultValue) {
+          const pathParts = path instanceof Array ? path : path.split('.');
+
+          if (!pathParts.length || typeof object !== 'object') return defaultValue;
+
+          const currentPathPart = pathParts[0];
+          const restPath = pathParts.slice(1);
+
+          if (pathParts.length === 1) return object[currentPathPart];
+
+          return getValue(object[currentPathPart], restPath, defaultValue);
+        }
+
+        function getPositionsSuggestions({value, cb}) {
+          $.ajax({
+            url: urlPositionsSuggestions + '?position=' + value,
+            cache: false,
+            success: function (result) {
+              cb(
+                result
+                  .map(function (pos) {
+                    return getValue(pos, 'fields.name', '')
+                  })
+                  .filter(function (pos) {
+                    return pos
+                  })
+              );
+            },
+          })
+        }
+
+        function getCompetenciesSuggestions({value, cb}) {
+          $.ajax({
+            url: urlCompetenciesSuggestions + '?competency=' + value,
+            cache: false,
+            success: function (result) {
+              cb(
+                result
+                  .map(function (pos) {
+                    return getValue(pos, 'fields.name', '')
+                  })
+                  .filter(function (pos) {
+                    return pos
+                  })
+              );
+            },
+          })
+        }
+
+        $('body').on('focus', '#id_position', function () {
+          if (autocompletePatched) return;
+
+          autocompletePatched = true;
+          monkeyPatchAutocomplete();
+
+          $("#id_position").autocomplete({
+            source: function (req, responseFn) {
+              const value = req.term;
+
+              if (!value) {
+                return responseFn([]);
+              }
+              getPositionsSuggestions({value, cb: responseFn});
+            },
+          });
+        });
+
+        $('body').on('focus', '#id_competency', function () {
+          if (autocompleteCompetencyPatched) return;
+
+          autocompleteCompetencyPatched = true;
+          monkeyPatchAutocomplete();
+
+          $("#id_competency").autocomplete({
+            source: function (req, responseFn) {
+              const value = req.term;
+
+              if (!value) {
+                return responseFn([]);
+              }
+              getCompetenciesSuggestions({value, cb: responseFn});
+            },
+          });
+        });
+
+      });
+    </script>
+{% endblock %}

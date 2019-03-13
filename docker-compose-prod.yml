@@ -1,0 +1,49 @@
+version: '3'
+services:
+  nginx-ssl-proxy:
+    image: danieldent/nginx-ssl-proxy
+    restart: always
+    environment:
+      UPSTREAM: 221.121.138.71:9000
+      SERVERNAME: app.anytimeinterview.com.au
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/etc/letsencrypt"
+
+  web:
+    build: .
+    volumes:
+      - .:/web
+    environment:
+      - DJANGO_SETTINGS_MODULE=anytimeiv.settings.prod
+      - PY_AUTORELOAD=1
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9000:9000"
+    links:
+      - redis
+    command:
+      /bin/bash -c "make install_prods && make run_gunicorn"
+
+  db:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_PASSWORD=test37
+    command: postgres
+
+  redis:
+    image: redis
+
+  celery:
+    build: .
+    volumes:
+      - .:/web
+    environment:
+      - DJANGO_SETTINGS_MODULE=anytimeiv.settings.prod
+      - PY_AUTORELOAD=1
+    depends_on:
+      - redis
+      - web
+    command: /bin/bash -c "make install_prods && make migrate && make celery"

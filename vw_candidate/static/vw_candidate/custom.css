@@ -1,0 +1,85 @@
+.navbar-brand {
+    width: 120px;
+    padding: 2px !important;
+}
+
+.navbar-brand > img {
+    height: 46px;
+    margin: auto;
+}
+
+#resendInviteModal .time-limit, #inviteModal .time-limit {
+    width: 30px;
+    padding: 6px 4px;
+}
+
+.ui-widget {
+    font-size: 0.8em;
+    line-height: 0.6em;
+}
+
+.ui-widget .ui-widget {
+    font-size: 0.7em;
+}
+
+.ui-menu-item {
+    font-size: 7pt;
+}
+
+.sel-candidate {
+    font-weight: bold;
+}
+
+.ui-dialog .ui-dialog-title {
+    line-height: 1.6em;
+}
+
+.ui-dialog {
+    z-index: 9990;
+}
+
+.star-rate-tooltip {
+    line-height: 1.8rem;
+    font-size: 1.2rem;
+}
+
+.fa {
+    min-width: 14px;
+}
+
+.btn-space {
+    margin-right: 10px;
+}
+
+.btn-space:last-child {
+    margin-right: 0px;
+}
+
+.overflow-auto {
+    overflow: auto;
+}
+
+@media (max-width: 767px) {
+    .flex-header {
+        display: flex;
+    }
+
+    .flex-header .navbar-toggle {
+        float: none;
+    }
+
+    .flex-header .navbar-header {
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 768px) {
+    #inviteModal .modal-dialog {
+        width: 800px;
+    }
+
+    .slick-dots li button:before {
+        font-size: 10px !important;
+    }
+}
+
