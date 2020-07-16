@@ -18,6 +18,7 @@ module.exports = {
   sections: [
     { name: 'Introduction', content: '../Introduction.md', sectionDepth: 1, },
     { name: 'Installation', content: '../Installation.md', sectionDepth: 1, },
+    { name: 'useMemoCompare', content: '../useMemoCompare.md' },
     { name: 'useGlobalEvent', content: '../useGlobalEvent.md' },
     { name: 'usePreviousValue', content: '../usePreviousValue.md' },
     { name: 'useValueHistory', content: '../useValueHistory.md' },
