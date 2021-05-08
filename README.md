@@ -6,16 +6,6 @@
 * Fully written in JS (although TS types are supported)
 
 
-
-
-<div>
-  <p align="center">
-    <a href="https://beautifulinteractions.github.io/beautiful-react-hooks/" target="_blank">
-    🌟 Live playground here 🌟
-    </a>
-  </p>
-</div>
-
 ### Made with
 
 * [React](https://reactjs.org/)
